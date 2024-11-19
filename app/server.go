@@ -29,7 +29,7 @@ func main() {
 			os.Exit(1)
 		}
 		if conn != nil {
-			go handleRequest(conn)
+			handleRequest(conn)
 		}
 	}
 }
@@ -37,6 +37,8 @@ func main() {
 func handleRequest(conn net.Conn) {
 	buff := make([]byte, 1024)
 	dataLength, err := conn.Read(buff)
+	defer conn.Close()
+
 	if err != nil {
 		if err.Error() == "EOF" {
 			fmt.Println("Connection closed")
