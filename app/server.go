@@ -36,32 +36,32 @@ func main() {
 
 func handleRequest(conn net.Conn) {
 	buff := make([]byte, 1024)
-	dataLength, err := conn.Read(buff)
-	defer conn.Close()
+	for {
+		dataLength, err := conn.Read(buff)
+		defer conn.Close()
 
-	if err != nil {
-		if err.Error() == "EOF" {
-			fmt.Println("Connection closed")
+		if err != nil {
+			if err.Error() == "EOF" {
+				fmt.Println("Connection closed")
+			}
+			fmt.Println("Error reading:", err.Error())
 		}
-		fmt.Println("Error reading:", err.Error())
-	}
-	if dataLength == 0 {
-		fmt.Println("No data received")
-	}
+		if dataLength == 0 {
+			fmt.Println("No data received")
+		} else {
 
-	msg := strings.Split(string(buff), "\r\n")
-	fmt.Printf("Message: %v", msg)
-	fmt.Println(msg)
+			msg := strings.Split(string(buff), "\r\n")
+			fmt.Printf("Message: %v", msg)
+			fmt.Println(msg)
 
-	var res string
-	for _, m := range msg {
-		switch strings.TrimSpace(m) {
-		case "PING":
-			res += "+PONG\r\n"
-		default:
-			fmt.Println("Received data: ", string(m))
+			for _, m := range msg {
+				switch strings.TrimSpace(m) {
+				case "PING":
+					conn.Write([]byte("+PONG\r\n"))
+				default:
+					fmt.Println("Received data: ", string(m))
+				}
+			}
 		}
 	}
-	fmt.Println(res)
-	conn.Write([]byte(res))
 }
