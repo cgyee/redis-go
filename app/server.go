@@ -47,10 +47,12 @@ func handleRequest(conn net.Conn) {
 		fmt.Println("No data received")
 	}
 
-	msg := strings.Split(string(buff), "\n")
+	msg := strings.Split(string(buff), "\r\n")
+	fmt.Printf("Message: %v", msg)
+	fmt.Println(msg)
 
 	for _, m := range msg {
-		switch m {
+		switch strings.TrimSpace(m) {
 		case "PING":
 			conn.Write([]byte("+PONG\r\n"))
 		default:
