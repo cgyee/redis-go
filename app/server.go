@@ -29,7 +29,7 @@ func main() {
 			os.Exit(1)
 		}
 		if conn != nil {
-			handleRequest(conn)
+			go handleRequest(conn)
 		}
 	}
 }
