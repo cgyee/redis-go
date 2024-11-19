@@ -47,7 +47,7 @@ func handleRequest(conn net.Conn) {
 		fmt.Println("No data received")
 	}
 
-	msg := strings.Split(string(buff), "\r\n")
+	msg := strings.Split(string(buff), "\n")
 
 	for _, m := range msg {
 		switch m {
