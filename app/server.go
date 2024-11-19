@@ -45,9 +45,11 @@ func handleRequest(conn net.Conn) {
 				fmt.Println("Connection closed")
 			}
 			fmt.Println("Error reading:", err.Error())
+			conn.Close()
 		}
 		if dataLength == 0 {
 			fmt.Println("No data received")
+			conn.Close()
 		} else {
 
 			msg := strings.Split(string(buff), "\r\n")
