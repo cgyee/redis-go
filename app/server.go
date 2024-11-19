@@ -34,7 +34,8 @@ func main() {
 }
 
 func handleRequest(conn net.Conn) {
-	conn.Write([]byte("+PONG\r\n"))
-	conn.Write([]byte("+PONG\r\n"))
+	for range 2 {
+		conn.Write([]byte("+PONG\r\n"))
+	}
 	conn.Close()
 }
