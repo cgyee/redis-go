@@ -53,13 +53,15 @@ func handleRequest(conn net.Conn) {
 	fmt.Printf("Message: %v", msg)
 	fmt.Println(msg)
 
+	var res string
 	for _, m := range msg {
 		switch strings.TrimSpace(m) {
 		case "PING":
-			conn.Write([]byte("+PONG\r\n"))
+			res += "+PONG\r\n"
 		default:
-			fmt.Println(string(buff), m)
-			fmt.Println("Received data: ", m)
+			fmt.Println("Received data: ", string(m))
 		}
 	}
+	fmt.Println(res)
+	conn.Write([]byte(res))
 }
