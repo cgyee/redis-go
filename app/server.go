@@ -54,7 +54,8 @@ func handleRequest(conn net.Conn) {
 		case "PING":
 			conn.Write([]byte("+PONG\r\n"))
 		default:
-			fmt.Println("Data Received: ", m)
+			fmt.Println(string(buff), m)
+			fmt.Println("Received data: ", m)
 		}
 	}
 }
