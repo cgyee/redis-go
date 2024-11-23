@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"strings"
 )
 
 // Ensures gofmt doesn't remove the "net" and "os" imports in stage 1 (feel free to remove this!)
@@ -38,32 +37,19 @@ func handleRequest(conn net.Conn) {
 	buff := make([]byte, 1024)
 	for {
 		dataLength, err := conn.Read(buff)
-		defer conn.Close()
-
+		fmt.Println("HandleReq: ", string(buff))
 		if err != nil {
 			if err.Error() == "EOF" {
 				fmt.Println("Connection closed")
 			}
 			fmt.Println("Error reading:", err.Error())
-			conn.Close()
 		}
 		if dataLength == 0 {
 			fmt.Println("No data received")
-			conn.Close()
 		} else {
-
-			msg := strings.Split(string(buff), "\r\n")
-			fmt.Printf("Message: %v", msg)
-			fmt.Println(msg)
-
-			for _, m := range msg {
-				switch strings.TrimSpace(m) {
-				case "PING":
-					conn.Write([]byte("+PONG\r\n"))
-				default:
-					fmt.Println("Received data: ", string(m))
-				}
-			}
+			_, msg := Read(buff[:])
+			fmt.Println("Message: ", string(msg))
+			conn.Write(msg)
 		}
 	}
 }
