@@ -37,7 +37,6 @@ func handleRequest(conn net.Conn) {
 	buff := make([]byte, 1024)
 	for {
 		dataLength, err := conn.Read(buff)
-		fmt.Println("HandleReq: ", string(buff))
 		if err != nil {
 			if err.Error() == "EOF" {
 				fmt.Println("Connection closed")
@@ -48,7 +47,6 @@ func handleRequest(conn net.Conn) {
 			fmt.Println("No data received")
 		} else {
 			_, msg := Read(buff[:])
-			fmt.Println("Message: ", string(msg))
 			conn.Write(msg)
 		}
 	}

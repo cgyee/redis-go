@@ -99,7 +99,6 @@ func ReadRESP(b []byte) (n int, resp RESP) {
 	endCRLF := crlf + 2
 	resp.Raw = b[:endCRLF]
 	resp.Data = b[1:crlf]
-	fmt.Println(string(resp.Data))
 	switch resp.Type {
 	case ARRAY:
 		count, err := strconv.Atoi(string(resp.Data))
