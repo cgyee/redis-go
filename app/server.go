@@ -21,14 +21,25 @@ func main() {
 		fmt.Println("Failed to bind to port 6379")
 		os.Exit(1)
 	}
-	for {
-		conn, err := l.Accept()
-		if err != nil {
-			fmt.Println("Error accepting connection: ", err.Error())
-			os.Exit(1)
+	ch := make(chan net.Conn, 1000)
+	go func() {
+		for {
+			if conn, err := l.Accept(); err == nil {
+				ch <- conn
+			}
+			if err != nil {
+				fmt.Println("Error accepting connection: ", err.Error())
+				os.Exit(1)
+			}
 		}
-		if conn != nil {
-			go handleRequest(conn)
+	}()
+
+	for {
+		select {
+		case conn, ok := <-ch:
+			if ok {
+				handleRequest(conn)
+			}
 		}
 	}
 }
