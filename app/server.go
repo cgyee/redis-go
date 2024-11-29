@@ -38,7 +38,7 @@ func main() {
 		select {
 		case conn, ok := <-ch:
 			if ok {
-				handleRequest(conn)
+				go handleRequest(conn)
 			}
 		}
 	}
