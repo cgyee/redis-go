@@ -25,7 +25,6 @@ func Read(b []byte) (n int, buff []byte) {
 
 		lgth, rr := ReadRESP(data[:])
 		cmd := strings.ToLower(string(rr.Data))
-		fmt.Println(string(cmd))
 		switch cmd {
 		case "echo":
 			_, r := ReadRESP(data[lgth:])
@@ -36,7 +35,6 @@ func Read(b []byte) (n int, buff []byte) {
 			return len(r), r
 		case "get":
 			_, rk := ReadRESP(data[lgth:])
-			fmt.Println("rk value", string(rk.Data))
 			r := store.Get(string(rk.Data))
 			res := []byte("$-1\r\n")
 			if r.Key != "" {
@@ -51,12 +49,10 @@ func Read(b []byte) (n int, buff []byte) {
 				l, r := ReadRESP(data[n:])
 				kv[j] = r
 				n += l
-				fmt.Println(string(r.Data))
 			}
 			ok := false
 			if len(kv) > 2 && strings.ToLower(string(kv[2].Data)) == "px" {
 				r := kv[3]
-				fmt.Println(len(r.Raw), string(r.Data))
 				expire, err := strconv.Atoi(string(r.Data))
 				if err != nil {
 					fmt.Println("Error parsing expiry: ", err)

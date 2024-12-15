@@ -28,7 +28,7 @@ func (store *Store) Get(key string) (row Data) {
 	if !ok {
 		return Data{}
 	}
-	if time.Time.After(row.Expire, time.Now()) {
+	if time.Now().After(row.Expire) {
 		delete(store.data, key)
 		return Data{}
 	}

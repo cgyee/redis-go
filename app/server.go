@@ -36,7 +36,6 @@ func main() {
 		select {
 		case conn, ok := <-ch:
 			if ok {
-				fmt.Println("Yay")
 				go handleRequest(conn)
 			} else {
 				continue
