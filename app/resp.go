@@ -154,4 +154,5 @@ func AppendArray(b []byte, n int64) []byte {
 // 2\r\n$4\r\nECHO\r\n$3\r\nhey\r\n
 // (printf '*2\r\n$4\r\nECHO\r\n$3\r\nhey\r\n';) | nc localhost 6379
 // (printf '*1\r\n$4\r\nPING\r\n';) | nc localhost 6379
-// (printf '*5\r\n$3\r\nSET\r\n$3\r\nfoo\r\n$3\r\nbar\r\n$2\r\npx\r\n$3\r\n100\r\n';) | nc localhost 6379
+// (printf '*5\r\n$3\r\nSET\r\n$3\r\nfoo\r\n$3\r\nbar\r\n$2\r\npx\r\n$4\r\n2000\r\n';) | nc localhost 6379
+//  (printf '*2\r\n$3\r\nGET\r\n$3\r\nfoo\r\n';) | nc localhost 6379
