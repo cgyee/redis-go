@@ -58,7 +58,7 @@ func ReadRESP(b []byte) (n int, resp RESP) {
 		return 0, RESP{}
 	}
 
-	resp.Type = b[0]
+	resp.Type = (b[0])
 	switch resp.Type {
 	case INTEGER, BULK, ARRAY, STRING:
 	default:
@@ -77,7 +77,7 @@ func ReadRESP(b []byte) (n int, resp RESP) {
 			fmt.Println("Error parsing array length: ", err)
 			return 0, RESP{}
 		}
-		var i int
+		i := endCRLF
 		data := b[endCRLF:]
 		for el := 0; el < count; el++ {
 			l, r := ReadRESP(data)
@@ -87,12 +87,13 @@ func ReadRESP(b []byte) (n int, resp RESP) {
 			data = data[l:]
 			i += l
 		}
-		resp.Raw = b[0:i]
+		resp.Raw = b[:i+1]
 		resp.Data = b[1:i]
 		return len(resp.Raw), resp
 
 	case BULK:
 		count, err := strconv.Atoi(string(resp.Data))
+		fmt.Println(count)
 		if err != nil {
 			fmt.Println("Error parsing bulk string length: ", err)
 			return 0, RESP{}
@@ -104,14 +105,15 @@ func ReadRESP(b []byte) (n int, resp RESP) {
 			return len(resp.Raw), RESP{}
 		}
 
-		if len(b) < crlf+count+2 {
+		if len(b) < endCRLF+count {
 			return 0, RESP{}
 		}
 
 		if b[endCRLF+count] != '\r' || b[endCRLF+count+1] != '\n' {
 			return 0, RESP{}
 		}
-		resp.Raw = b[0 : endCRLF+count]
+
+		resp.Raw = b[:endCRLF+count+2]
 		resp.Data = b[endCRLF : endCRLF+count]
 		count = 0
 		return len(resp.Raw), resp
@@ -148,3 +150,8 @@ func AppendBulkString(b []byte, bulk []byte) []byte {
 func AppendArray(b []byte, n int64) []byte {
 	return AppendPrefix(b, 'n', n)
 }
+
+// 2\r\n$4\r\nECHO\r\n$3\r\nhey\r\n
+// (printf '*2\r\n$4\r\nECHO\r\n$3\r\nhey\r\n';) | nc localhost 6379
+// (printf '*1\r\n$4\r\nPING\r\n';) | nc localhost 6379
+// (printf '*5\r\n$3\r\nSET\r\n$3\r\nfoo\r\n$3\r\nbar\r\n$2\r\npx\r\n$3\r\n100\r\n';) | nc localhost 6379

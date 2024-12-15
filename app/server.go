@@ -36,7 +36,10 @@ func main() {
 		select {
 		case conn, ok := <-ch:
 			if ok {
+				fmt.Println("Yay")
 				go handleRequest(conn)
+			} else {
+				continue
 			}
 		default:
 			continue
@@ -50,9 +53,11 @@ func handleRequest(conn net.Conn) {
 		dataLength, err := conn.Read(buff)
 		if err != nil {
 			if err.Error() == "EOF" {
-				fmt.Println("Connection closed")
+				// fmt.Println("Connection closed")
+				continue
 			}
-			fmt.Println("Error reading:", err.Error())
+			// fmt.Println("Error reading:", err.Error())
+			continue
 		} else if dataLength == 0 {
 			fmt.Println("No data received")
 		} else {
