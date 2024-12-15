@@ -51,7 +51,7 @@ func Read(b []byte) (n int, buff []byte) {
 				n += l
 			}
 			ok := false
-			if len(kv) > 2 && strings.ToLower(string(kv[2].Data)) == "px" {
+			if strings.ToLower(string(kv[2].Data)) == "px" {
 				r := kv[3]
 				expire, err := strconv.Atoi(string(r.Data))
 				if err != nil {
