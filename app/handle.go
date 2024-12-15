@@ -36,8 +36,12 @@ func Read(b []byte) (n int, buff []byte) {
 			return len(r), r
 		case "get":
 			_, rk := ReadRESP(data[lgth:])
+			fmt.Println("rk value", string(rk.Data))
 			r := store.Get(string(rk.Data))
-			res := AppendBulkString(make([]byte, 0), (r.Value))
+			res := []byte("($-1\r\n)")
+			if r.Key != "" {
+				res = AppendBulkString(make([]byte, 0), (r.Value))
+			}
 			return len(res), res
 		case "set":
 			n = 0
