@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"sync"
 	"time"
 )
@@ -28,6 +29,7 @@ func (store *Store) Get(key string) (row Data) {
 	if !ok {
 		return Data{}
 	}
+	fmt.Println(time.Now(), "\r\n", row.Expire)
 	if time.Now().After(row.Expire) {
 		delete(store.data, key)
 		return Data{}
@@ -39,10 +41,6 @@ func (store *Store) Set(key string, t string, v []byte) (ok bool) {
 	store.mu.Lock()
 	_, ok = store.data[key]
 	defer store.mu.Unlock()
-
-	if ok {
-		return false
-	}
 	store.data[key] = Data{Key: key, Type: t, Value: v}
 	return true
 }
@@ -51,10 +49,6 @@ func (store *Store) SetEx(key string, t string, v []byte, tm int64) (ok bool) {
 	store.mu.Lock()
 	_, ok = store.data[key]
 	defer store.mu.Unlock()
-
-	if ok {
-		return false
-	}
 	duration := time.Millisecond * time.Duration(tm)
 	expire := time.Now().Add(duration)
 	store.data[key] = Data{Key: key, Type: t, Value: v, Expire: expire}
