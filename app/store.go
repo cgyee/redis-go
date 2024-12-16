@@ -10,10 +10,11 @@ var once sync.Once
 var instance *Store
 
 type Data struct {
-	Key    string
-	Type   string
-	Value  []byte
-	Expire time.Time
+	Key     string
+	Type    string
+	Value   []byte
+	Expires bool
+	Expire  time.Time
 }
 
 type Store struct {
@@ -24,13 +25,13 @@ type Store struct {
 func (store *Store) Get(key string) (row Data) {
 	store.mu.Lock()
 	row, ok := store.data[key]
+	fmt.Println(row.Key, string(row.Value), ok)
 	defer store.mu.Unlock()
 
 	if !ok {
 		return Data{}
 	}
-	fmt.Println(time.Now(), "\r\n", row.Expire)
-	if time.Now().After(row.Expire) {
+	if row.Expires && time.Now().After(row.Expire) {
 		delete(store.data, key)
 		return Data{}
 	}
@@ -39,9 +40,8 @@ func (store *Store) Get(key string) (row Data) {
 
 func (store *Store) Set(key string, t string, v []byte) (ok bool) {
 	store.mu.Lock()
-	_, ok = store.data[key]
 	defer store.mu.Unlock()
-	store.data[key] = Data{Key: key, Type: t, Value: v}
+	store.data[key] = Data{Key: key, Type: t, Value: v, Expires: false}
 	return true
 }
 
@@ -51,7 +51,7 @@ func (store *Store) SetEx(key string, t string, v []byte, tm int64) (ok bool) {
 	defer store.mu.Unlock()
 	duration := time.Millisecond * time.Duration(tm)
 	expire := time.Now().Add(duration)
-	store.data[key] = Data{Key: key, Type: t, Value: v, Expire: expire}
+	store.data[key] = Data{Key: key, Type: t, Value: v, Expire: expire, Expires: true}
 	return true
 }
 
