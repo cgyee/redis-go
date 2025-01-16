@@ -147,11 +147,13 @@ func AppendBulkString(b []byte, bulk []byte) []byte {
 	return append(b, '\r', '\n')
 }
 func AppendArray(b []byte, n int64) []byte {
-	return AppendPrefix(b, 'n', n)
+	return AppendPrefix(b, '*', n)
 }
 
 // 2\r\n$4\r\nECHO\r\n$3\r\nhey\r\n
 // (printf '*2\r\n$4\r\nECHO\r\n$3\r\nhey\r\n';) | nc localhost 6379
 // (printf '*1\r\n$4\r\nPING\r\n';) | nc localhost 6379
-// (printf '*5\r\n$3\r\nSET\r\n$3\r\nfoo\r\n$3\r\nbar\r\n$2\r\npx\r\n$1\r\n1\r\n';) | nc localhost 6379
-//  (printf '*2\r\n$3\r\nGET\r\n$3\r\nfoo\r\n';) | nc localhost 6379
+// (printf '*5\r\n$3\r\nSET\r\n$3\r\nfoo\r\n$3\r\nbar\r\n$2\r\npx\r\n$4\r\n9000\r\n';) | nc localhost 6379
+// (printf '*2\r\n$3\r\nGET\r\n$3\r\nfoo\r\n';) | nc localhost 6379
+
+// (printf '*3\r\n$6\r\nCONFIG\r\n$3\r\nGET\r\n$3\r\ndir\r\n';) | nc localhost 6379
