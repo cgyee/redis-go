@@ -10,9 +10,6 @@ import (
 )
 
 const (
-	lead6Sz  = 1
-	lead14Sz = 2
-
 	encInt8  = 0
 	encInt16 = 1
 	encInt32 = 2
@@ -24,16 +21,6 @@ const (
 	bits64 = 8
 )
 
-// type byteWriter interface {
-// 	io.ByteWriter
-// 	io.Writer
-// }
-
-// type writer struct {
-// 	i    int
-// 	buff []byte
-// }
-
 type Encoder struct {
 	w io.Writer
 }
@@ -41,32 +28,6 @@ type Encoder struct {
 type encoder struct {
 	Encoder Encoder
 }
-
-// Define an Encoder func for each option
-// When you call Encode pass in an option that determine which type of encdoing you would like done
-// and the value you would like to encode, then return the resulting encoding
-
-// func (w *writer) WriteByte(b byte) error {
-// 	if w.i+1 > len(w.buff) {
-
-// 		return io.ErrShortWrite
-// 	}
-// 	w.buff[w.i] = b
-// 	w.i++
-// 	return nil
-// }
-
-// func (w *writer) Write(b []byte) (n int, e error) {
-// 	if w.i+len(b) > len(w.buff) {
-// 		n = len(b) - w.i
-// 		n = copy(w.buff[w.i:], b[:n])
-// 		w.i += n
-// 		return w.i, io.ErrShortWrite
-// 	}
-// 	n = copy(w.buff[w.i:], b)
-// 	w.i += n
-// 	return w.i, nil
-// }
 
 func NewEncoder(w io.Writer) *Encoder {
 	en := &Encoder{w}

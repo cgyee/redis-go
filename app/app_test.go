@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"fmt"
+	"os"
 	"strconv"
 	"testing"
 )
@@ -18,7 +20,7 @@ func TestEncoder(t *testing.T) {
 	if string(got[1:]) != foo {
 		t.Errorf("en.Encode(foo) = %v; want foo ", string(got))
 	}
-	raw := strconv.Itoa(UintToInt([]byte{got[0]})) + string(got[1:])
+	raw := strconv.Itoa(int(got[0]&0x3F)) + string(got[1:])
 	if raw != "3"+foo {
 		t.Errorf("encodeString(foo) -> UintToInt(b[0]) = %v; want 3foo ", raw)
 	}
@@ -37,6 +39,48 @@ func TestEncoder(t *testing.T) {
 	if raw != strconv.Itoa(len((foo64)))+foo64 {
 		t.Errorf("encodeString(foo64) = \n%v; \nwant \n%d%v\n", raw, len(foo64)+2, foo64)
 	}
+}
+
+func TestDb(t *testing.T) {
+	r := NewRDB("test.txt")
+	_, got := r.openFile()
+	if got != nil && got != os.ErrNotExist {
+		fmt.Println("db.openFile successfully did not find the file")
+	} else {
+		fmt.Println("db.openFile failed: ", got)
+	}
+
+	_, got = r.createFile()
+	if got != nil {
+		fmt.Println("db.createFile failed, file not created: ", got)
+	} else {
+		fmt.Println("db.createFile file successfully created: ")
+	}
+
+	r.f, got = r.createFile()
+	if got != nil {
+		if got == os.ErrExist {
+			fmt.Println("db.createFile successfully returned exist error: ")
+		} else {
+			fmt.Print("db.createFile failed: ", got)
+		}
+	}
+	defer r.f.Close()
+	got_n, err := r.WriteHeader(r.f)
+	if err != nil {
+		fmt.Println("Write Header failed: ", err)
+	}
+	if got_n != len([]byte("REDIS")) {
+		fmt.Println("Write len != input: ", got_n)
+	}
+	got_n, err = r.writeClose()
+	if err != nil {
+		fmt.Println("WriteClose failed: ", err)
+	}
+	if got_n != 1 {
+		fmt.Printf("WriteClose = %v,  want %v", got_n, 1)
+	}
+
 }
 
 // func TestDecode(t *testing.T) {
