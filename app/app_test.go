@@ -50,23 +50,23 @@ func TestDb(t *testing.T) {
 		fmt.Println("db.openFile failed: ", got)
 	}
 
-	_, got = r.createFile()
+	r.f, got = r.createFile()
 	if got != nil {
 		fmt.Println("db.createFile failed, file not created: ", got)
 	} else {
 		fmt.Println("db.createFile file successfully created: ")
 	}
 
-	r.f, got = r.createFile()
-	if got != nil {
-		if got == os.ErrExist {
-			fmt.Println("db.createFile successfully returned exist error: ")
-		} else {
-			fmt.Print("db.createFile failed: ", got)
-		}
-	}
+	// r.f, got = r.createFile()
+	// if got != nil {
+	// 	if got == os.ErrExist {
+	// 		fmt.Println("db.createFile successfully returned exist error: ")
+	// 	} else {
+	// 		fmt.Print("db.createFile failed: ", got)
+	// 	}
+	// }
 	defer r.f.Close()
-	got_n, err := r.WriteHeader(r.f)
+	got_n, err := r.w.writeHeader(r.f)
 	if err != nil {
 		fmt.Println("Write Header failed: ", err)
 	}
@@ -81,24 +81,20 @@ func TestDb(t *testing.T) {
 		fmt.Printf("WriteClose = %v,  want %v", got_n, 1)
 	}
 
+	foo := []byte("fooWrite")
+	got_n, err = r.WriteString(foo)
+	if err != nil {
+		fmt.Printf("WriteString failed = %v, want %v", got_n, len(foo))
+	}
+	b := make([]byte, 1024)
+	f, err := os.Open("test.txt")
+	if err != nil {
+		fmt.Println(err)
+	}
+	n, err := f.Read(b)
+	if err != nil {
+		fmt.Println("read failed ", got_n, err)
+	}
+	fmt.Printf("got %v\n", string(b[:n]))
+
 }
-
-// func TestDecode(t *testing.T) {
-// 	foo := "foo"
-// 	en := encoder{}
-// 	fooEnc, _ := en.Encode(TypeString, []byte(foo))
-// 	got := decodeString(fooEnc)
-// 	if string(got) != foo {
-// 		t.Errorf("decodeString(\"foo\") = %v; want \"foo\"", string(got))
-// 	}
-
-// 	foo64 := "fooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo"
-// 	fooEnc, _ = en.Encode(TypeString, []byte(foo64))
-// 	got = decodeString(fooEnc)
-// 	if string(got) != foo64 {
-// 		t.Errorf("decodeString(\"foo64\") = %v; want \"%v\"", string(got), foo64)
-
-// 	}
-// }
-
-// int((binary.BigEndian.Uint16([]byte{0x0, 0x0, got[0] & 0x63})))

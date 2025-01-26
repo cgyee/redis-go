@@ -14,19 +14,10 @@ const (
 	encInt16 = 1
 	encInt32 = 2
 	encObj   = 192
-
-	bits8  = 1
-	bits16 = 2
-	bits32 = 4
-	bits64 = 8
 )
 
 type Encoder struct {
 	w io.Writer
-}
-
-type encoder struct {
-	Encoder Encoder
 }
 
 func NewEncoder(w io.Writer) *Encoder {
@@ -49,12 +40,12 @@ func (en *Encoder) EncodeLength(l int) (n int) {
 }
 
 func (en *Encoder) EncodeString(p []byte) (n int, e error) {
-	en.EncodeLength(len(p))
+	l := en.EncodeLength(len(p))
 	n, e = en.w.Write(p)
 	if e != nil {
 		fmt.Println("error EncodeString: ", e)
 	}
-	return n, nil
+	return n + l, nil
 }
 
 func (en *Encoder) EncodeInt(p []byte) (n int, err error) {
@@ -77,10 +68,8 @@ func (en *Encoder) EncodeInt(p []byte) (n int, err error) {
 		b[0] = encObj | 2
 		binary.LittleEndian.PutUint32(b, uint32(v))
 		n, err = en.w.Write(b)
-	default:
-		return n, err
 	}
-	return n, nil
+	return n, err
 }
 
 func (en *Encoder) EncodeTimeStamp(ms bool, n int) (b []byte, e error) {

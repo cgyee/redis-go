@@ -46,37 +46,31 @@ type DBWriter struct {
 	mem       int
 }
 
-type DBReader struct {
-	idx int
+type Writer struct {
+	idx  int
+	en   *Encoder
+	buf  *bytes.Buffer
+	mode os.FileMode
 }
 
 type db struct {
 	f        *os.File
 	fileName string
-	en       *Encoder
+	w        Writer
 }
-
-// func (rdb *db) Write(t rune, p []byte) (n int, err error) {
-// 	// en := &rdb.en
-// 	switch t {
-// 	case BULK:
-// 	}
-
-// }
 
 func NewRDB(fileName string) *db {
 	b := new(bytes.Buffer)
 	en := &Encoder{w: b}
-	rdb := &db{en: en, fileName: fileName}
+	w := Writer{en: en, buf: b}
+	rdb := &db{w: w, fileName: fileName}
 	return rdb
 
 }
 
-func (redb *db) WriteHeader(f *os.File) (n int, err error) {
-	header := make([]byte, 0)
-	header = append(header, []byte("REDIS")...)
-
-	n, err = f.Write(header)
+func (w *Writer) writeHeader(f *os.File) (n int, err error) {
+	header := "REDIS"
+	n, err = f.Write([]byte(header))
 	if err != nil {
 		fmt.Printf("error during writeHeader:\n%v\n", err)
 		return n, err
@@ -87,7 +81,7 @@ func (redb *db) WriteHeader(f *os.File) (n int, err error) {
 }
 
 func (rdb *db) openFile() (f *os.File, err error) {
-	f, err = os.OpenFile(rdb.fileName, os.O_RDWR|os.O_TRUNC, 0644)
+	f, err = os.OpenFile(rdb.fileName, os.O_RDWR|os.O_APPEND, 0644)
 	if err != nil {
 		return
 	}
@@ -95,7 +89,7 @@ func (rdb *db) openFile() (f *os.File, err error) {
 }
 
 func (rdb *db) createFile() (f *os.File, err error) {
-	f, err = os.OpenFile(rdb.fileName, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
+	f, err = os.OpenFile(rdb.fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
 		return
 	}
@@ -104,7 +98,7 @@ func (rdb *db) createFile() (f *os.File, err error) {
 }
 
 func (rdb *db) overwriteFile() (f *os.File, err error) {
-	f, err = os.OpenFile(rdb.fileName, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
+	f, err = os.OpenFile(rdb.fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
 		switch err {
 		case os.ErrExist:
@@ -131,5 +125,33 @@ func (rdb *db) writeClose() (n int, err error) {
 	return n, err
 }
 
-func (db *DBWriter) Write(rd RData) {
+func (rdb *db) WriteString(data []byte) (n int, err error) {
+	n, err = rdb.w.en.EncodeString(data)
+	if err != nil {
+		return
+	}
+	b := rdb.w.buf.Bytes()
+	fmt.Println(string(b))
+	n, err = rdb.write(b)
+	return
+}
+
+func (rdb *db) write(data []byte) (n int, err error) {
+	n, err = rdb.f.Write(data)
+	if err != nil {
+		switch err {
+		case os.ErrNotExist:
+			rdb.f, _ = rdb.createFile()
+		case os.ErrClosed:
+			rdb.f, _ = rdb.openFile()
+		default:
+			return 0, err
+		}
+
+		n, err = rdb.f.Write(data)
+		if err != nil {
+			return
+		}
+	}
+	return n, nil
 }
