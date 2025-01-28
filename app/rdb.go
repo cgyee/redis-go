@@ -9,6 +9,7 @@ import (
 
 const (
 	TypeString = 0
+	TypeObject = 3
 )
 
 const (
