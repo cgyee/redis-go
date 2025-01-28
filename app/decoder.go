@@ -36,7 +36,7 @@ func (de *Decoder) decodeLength(f *os.File) (n int, isStr bool) {
 	case strLen6:
 		return int(b[0]), true
 	case strLen14:
-		return int(p[0] & 0x3F), true
+		return int(b[0] & 0x3F), true
 	case strLen32:
 
 		return
@@ -47,7 +47,6 @@ func (de *Decoder) decodeLength(f *os.File) (n int, isStr bool) {
 }
 
 func (de *Decoder) Read() {
-	de.r.Read()
 }
 
 func (de *Decoder) decodeString() {}
